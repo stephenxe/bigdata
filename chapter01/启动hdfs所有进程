@@ -1,0 +1,12 @@
+[hadoop@hadoop hadoop]$ $HADOOP_HOME/sbin/start-dfs.sh
+18/03/07 23:04:55 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Starting namenodes on [hadoop000]
+hadoop000: starting namenode, logging to /home/hadoop/app/hadoop-2.6.0-cdh5.7.0/logs/hadoop-hadoop-namenode-hadoop.out
+hadoop000: starting datanode, logging to /home/hadoop/app/hadoop-2.6.0-cdh5.7.0/logs/hadoop-hadoop-datanode-hadoop.out
+Starting secondary namenodes [0.0.0.0]
+The authenticity of host '0.0.0.0 (0.0.0.0)' can't be established.
+RSA key fingerprint is 32:f6:76:11:2a:80:50:fc:90:fd:8d:d6:b3:55:50:dc.
+Are you sure you want to continue connecting (yes/no)? yes
+0.0.0.0: Warning: Permanently added '0.0.0.0' (RSA) to the list of known hosts.
+0.0.0.0: starting secondarynamenode, logging to /home/hadoop/app/hadoop-2.6.0-cdh5.7.0/logs/hadoop-hadoop-secondarynamenode-hadoop.out
+18/03/07 23:05:14 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
