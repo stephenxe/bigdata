@@ -1,0 +1,166 @@
+Hadoop核心组成：分布式文件系统、分布式计算系统、资源管理系统
+Hadoop生态系统：
+HDFS：为大数据存储提供了保障。
+MapReduce：是一个分布式、并行处理的编程模型。
+YARN：负责整个系统的资源管理和调度。其上可运行各种不同类型的执行框架（MapReduce、Tez、Spark）
+Hbase：建立在HDFS之上的面向列的数据库。
+Zookeeper：分布式系统服务的框架。
+Hive：将Sql语句翻译为MapReduce作业。
+Pig：是一个用于并行计算的高级数据流语言和执行框架
+Sqoop：用于关系型数据库、数据仓库（Hive）和Hadoop之间的数据转移框架
+Flume：是由Cloudera提供的一个分布式、高可靠、高可服务，用于分布式海量日志的高效手机、聚合、移动／传输系统的框架。基于流式数据
+Oozie：一个工作流调度引擎。
+Mahout：机器学习和数据挖掘库。
+
+su hadoop
+mkdir ~/app
+mkdir ~/software
+cp /media/psf/Home/Downloads/hadoop-2.6.0-cdh5.7.0.tar.gz ~/software/
+tar -zxvf ~/software/hadoop-2.6.0-cdh5.7.0.tar.gz -C ~/app/
+cp /media/psf/Home/Downloads/jdk-8u144-linux-x64.tar.gz ~/software/
+tar -zxvf ~/software/jdk-8u144-linux-x64.tar.gz -C ~/app/
+vi ~/.bash_profile
+export JAVA_HOME=/home/hadoop/app/jdk1.8.0_144
+export PATH=$JAVA_HOME/bin:$PATH
+export HADOOP_HOME=/home/hadoop/app/hadoop-2.6.0-cdh5.7.0
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+
+source ~/.bash_profile
+
+java -version
+hadoop version
+
+获取sudo权限
+chmod 644 /etc/sudoers
+vi /etc/sudoers
+root    ALL=(ALL)       ALL
+hadoop  ALL=(ALL)   NOPASSWD:ALL
+
+sudo vi /etc/hosts
+127.0.0.1 hadoop000
+
+修改ssh免密登陆
+ssh-keygen -t rsa
+
+
+cd ~/.ssh
+ssh-keygen -t rsa
+touch authorized_keys
+chmod 600 authorized_keys
+cat id_rsa.pub >> authorized_keys
+ssh hadoop000
+exit
+# 关闭防火墙
+sudo chkconfig iptables off
+service iptables stop 
+
+配置hadoop
+cd ~/app/hadoop-2.6.0-cdh5.7.0/etc/hadoop/
+vi hadoop-env.sh
+export JAVA_HOME=/home/hadoop/app/jdk1.8.0_144
+
+mkdir -p /home/hadoop/app/tmp
+vi core-site.xml
+<configuration>
+<property>
+<name>fs.default.name</name>
+<value>hdfs://hadoop000:8020</value>
+</property>
+<property>
+<name>hadoop.tmp.dir</name>
+<value>/home/hadoop/app/tmp</value>
+</property>
+</configuration>
+
+
+mkdir -p /home/hadoop/tmp/dfs/name
+mkdir -p /home/hadoop/tmp/dfs/data
+
+vi hdfs-site.xml
+<configuration>
+<property>
+<name>dfs.namenode.name.dir</name>
+<value>/home/hadoop/tmp/dfs/name</value>
+</property>
+<property>
+<name>dfs.namenode.data.dir</name>
+<value>/home/hadoop/tmp/dfs/data</value>
+</property>
+<property>
+<name>dfs.replication</name>
+<value>1</value>
+</property>
+<property>
+<name>dfs.permissions</name>
+<value>false</value>
+</property>
+</configuration>
+
+vi slaves
+hadoop000
+
+格式化hdfs
+hdfs namenode -format
+
+cat mapred-site.xml
+<configuration>
+<property>
+<name>mapreduce.framework.name</name>
+<value>yarn</value>
+</property>
+</configuration>
+
+cat yarn-site.xml
+<configuration>
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce.shuffle</value>
+</property>
+</configuration>
+
+
+
+hdfs namenode -format
+
+$HADOOP_HOME/sbin/start-dfs.sh
+jps
+
+19024 SecondaryNameNode
+19458 Jps
+18713 NameNode
+18846 DataNode
+
+http://hadoop000:50070/dfshealth.html#tab-overview
+
+$HADOOP_HOME/sbin/start-yarn.sh
+
+jps
+19024 SecondaryNameNode
+18713 NameNode
+21101 ResourceManager
+18846 DataNode
+21199 NodeManager
+21647 Jps
+
+http://hadoop000:8088/cluster
+
+cd ~
+mkdir test
+cd test
+touch hello.txt
+vi hello.txt
+
+hello  word  hello
+hello  welcome  world
+
+hadoop fs -put hello.txt /
+hadoop fs -ls /
+
+hadoop jar /home/hadoop/app/hadoop-2.6.0-cdh5.7.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0-cdh5.7.0.jar wordcount /hello.txt /wc_out/
+hadoop fs -text /wc_out/part*
